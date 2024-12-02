@@ -11,7 +11,7 @@ app.use('/api/file', fileRouter);
 
 // 只在非 Vercel 环境下启动服务器
 if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.PORT || 8035;
+  const port = process.env.PORT || 8036;
   app.listen(port, () => {
     console.log(`服务器运行在 http://localhost:${port}`);
   });
