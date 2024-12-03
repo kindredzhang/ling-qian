@@ -18,3 +18,9 @@ export interface GanZhiResult {
   element: Element;
   elementFileUrl: string;
 } 
+
+export interface ProductResult {
+  productTitle: string;
+  productFileUrl: string;
+  productDescription: string;
+}

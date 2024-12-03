@@ -1,6 +1,6 @@
 import express from 'express';
 import { BirthInfo, GanZhiResult } from '../types';
-import { calculateGanZhi } from '../utils/ganZhiCalculator';
+import { calculateGanZhi, calculateProduct } from '../utils/ganZhiCalculator';
 
 const router = express.Router();
 
@@ -13,11 +13,15 @@ router.post('/calculate', async (req: express.Request, res: express.Response) =>
       return;
     }
     
-    const result = await calculateGanZhi(birthInfo.year);
+    // element result
+    const elementResult = await calculateGanZhi(birthInfo.year);
+    // product result
+    const productResult = await calculateProduct(elementResult.element);
 
     res.json({
       name: birthInfo.name,
-      ...result
+      ...elementResult,
+      ...productResult
     });
   } catch (error) {
     res.status(500).json({ error: '哎呀～师傅打瞌睡啦！请您稍后再试试看～' });
