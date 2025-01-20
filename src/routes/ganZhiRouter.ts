@@ -8,16 +8,20 @@ router.post('/calculate', async (req: express.Request, res: express.Response) =>
   try {
     const birthInfo = req.body as BirthInfo;
     
-    // if (!birthInfo.year || !birthInfo.month || !birthInfo.day || !birthInfo.name) {
-    //   res.status(400).json({ error: '请提供完整的出生信息' });
-    //   return;
-    // }
+    if (!birthInfo.year || !birthInfo.month || !birthInfo.day || !birthInfo.name) {
+      res.status(400).json({ error: '请提供完整的信息' });
+      return;
+    }
     
-    const date = new Date();
-
-    // element result
-    const elementResult = await calculateGanZhi(date.getFullYear(), date.getMonth() + 1, date.getDate());
-    // product result
+    // 使用用户的出生日期和用户ID进行计算
+    const elementResult = await calculateGanZhi(
+      birthInfo.year, 
+      birthInfo.month, 
+      birthInfo.day,
+      birthInfo.name
+    );
+    
+    // 计算推荐结果
     const productResult = await calculateProduct(elementResult.element);
 
     res.json({
@@ -26,7 +30,7 @@ router.post('/calculate', async (req: express.Request, res: express.Response) =>
       ...productResult
     });
   } catch (error) {
-    res.status(500).json({ error: '哎呀～师傅打瞌睡啦！请您稍后再试试看～' });
+    res.status(500).json({ error: '系统繁忙，请稍后再试' });
   }
 });
 
