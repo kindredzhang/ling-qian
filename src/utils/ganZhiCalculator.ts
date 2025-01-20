@@ -50,17 +50,24 @@ const GANZHI_ELEMENT_MAP = new Map([
   ['戊午己未', '天上火'], ['庚申辛酉', '石榴木'], ['壬戌癸亥', '大海水']
 ]);
 
-export async function calculateGanZhi(year: number): Promise<GanZhiResult> {
+export async function calculateGanZhi(year: number, month: number, day: number): Promise<GanZhiResult> {
+  // 计算距离1900年1月31日的天数
+  const base = new Date(1900, 0, 31);
+  const target = new Date(year, month - 1, day);
+  const diff = Math.floor((target.getTime() - base.getTime()) / (24 * 60 * 60 * 1000));
+  
   // 计算天干
-  const heavenlyStemIndex = (year - 4) % 10;
+  const heavenlyStemIndex = (diff + 4) % 10;
   const heavenlyStem = HEAVENLY_STEMS[heavenlyStemIndex];
   
   // 计算地支
-  const earthlyBranchIndex = (year - 4) % 12;
+  const earthlyBranchIndex = (diff + 2) % 12;
   const earthlyBranch = EARTHLY_BRANCHES[earthlyBranchIndex];
   
   const ganZhi = heavenlyStem + earthlyBranch;
   let element: Element = '金';
+  
+  // 查找对应的五行
   for (const [key, value] of GANZHI_ELEMENT_MAP.entries()) {
     if (key.includes(ganZhi)) {
       element = ELEMENT_MAPPING[value as keyof typeof ELEMENT_MAPPING];
@@ -68,7 +75,7 @@ export async function calculateGanZhi(year: number): Promise<GanZhiResult> {
     }
   }
 
-  // 使用 OssService 获取签名URL
+  // 获取元素图片
   const ossService = new OssService();
   let letter = '';
   if (element === '金') {

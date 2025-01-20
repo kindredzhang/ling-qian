@@ -1,5 +1,5 @@
 import express from 'express';
-import { BirthInfo, GanZhiResult } from '../types';
+import { BirthInfo } from '../types';
 import { calculateGanZhi, calculateProduct } from '../utils/ganZhiCalculator';
 
 const router = express.Router();
@@ -8,13 +8,15 @@ router.post('/calculate', async (req: express.Request, res: express.Response) =>
   try {
     const birthInfo = req.body as BirthInfo;
     
-    if (!birthInfo.year || !birthInfo.month || !birthInfo.day || !birthInfo.name) {
-      res.status(400).json({ error: '请提供完整的出生信息' });
-      return;
-    }
+    // if (!birthInfo.year || !birthInfo.month || !birthInfo.day || !birthInfo.name) {
+    //   res.status(400).json({ error: '请提供完整的出生信息' });
+    //   return;
+    // }
     
+    const date = new Date();
+
     // element result
-    const elementResult = await calculateGanZhi(birthInfo.year);
+    const elementResult = await calculateGanZhi(date.getFullYear(), date.getMonth() + 1, date.getDate());
     // product result
     const productResult = await calculateProduct(elementResult.element);
 
