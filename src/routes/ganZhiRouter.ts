@@ -1,6 +1,6 @@
 import express from 'express';
 import { BirthInfo } from '../types';
-import { calculateGanZhi, calculateProduct } from '../utils/ganZhiCalculator';
+import GanzhiService from '../services/GanzhiService';
 
 const router = express.Router();
 
@@ -13,26 +13,13 @@ router.post('/calculate', async (req: express.Request, res: express.Response) =>
       return;
     }
     
-    // 使用用户的出生日期和用户ID进行计算
-    const elementResult = await calculateGanZhi(
-      birthInfo.year, 
-      birthInfo.month, 
-      birthInfo.day,
-      birthInfo.name
-    );
-    
-    // 计算推荐结果
-    const productResult = await calculateProduct(elementResult.element);
-
-    // res.json({
-    //   name: birthInfo.name,
-    //   ...elementResult,
-    //   ...productResult
-    // });
-
-    res.status(200).json()  
-  } catch (error) {
-    res.status(500).json({ error: '系统繁忙，请稍后再试' });
+    const result = await GanzhiService.calculate(birthInfo);
+    res.status(200).json(result)  
+  } catch (error: unknown) {
+    console.error(error);
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : '系统繁忙，请稍后再试'
+    });
   }
 });
 

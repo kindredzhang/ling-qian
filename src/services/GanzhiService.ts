@@ -1,28 +1,70 @@
-import { BirthInfo, ProductResult, FinalResult, Element } from "../types";
+import { Solar } from 'lunar-typescript';
+import { BirthInfo, Element, FinalResult, GanZhiResult, MissingElement, ProductResult } from "../types";
+import { getElementByGanzhi, getElementDescription, getElementLuckySymbols, getElementRecentLuck, getFileUrlByElement } from "../utils/GanZhiCalculator";
+import { getMissingAdvice, getMissingDescription, getMissingElement } from '../utils/MissingCalculator';
 import { OssService } from "../utils/OssService";
+
 export default class GanzhiService {
     
     static async calculate(birthInfo: BirthInfo) :Promise<FinalResult> {
+        const ganZhiResult = await this.getGanzhiResult(birthInfo);
+        const missingElement = await this.getMissingElement(birthInfo);
+        const productResult = await this.getProducts(ganZhiResult.element);
         return {
-            ganZhiResult: {
-                ganZhi: '',
-                element: '金',
-                elementFileUrl: '',
-                description: '',
-                recentLuck: '',
-                luckySymbols: {
-                    color: '',
-                    direction: '',
-                    object: ''
-                }
-            },
-            missingElements: [],
-            productResult: []
+            ganZhiResult: ganZhiResult,
+            missingElement: missingElement,
+            productResult: productResult
+        }
+    }
+
+    // 计算五行
+    static async getGanzhiResult(birthInfo: BirthInfo): Promise<GanZhiResult> {
+        // 取nayin "壁上土"
+        const lunar = await Solar.fromYmd(birthInfo.year, birthInfo.month, birthInfo.day).getLunar(); 
+        const ganZhi = lunar.getTimeNaYin();
+        // 取最后一个字 "土"
+        const element = ganZhi != null ? ganZhi.slice(-1) : '土';
+        const elementFileUrl = await getFileUrlByElement(element);
+
+        return {
+            ganZhi: ganZhi,
+            element: element,
+            elementFileUrl: elementFileUrl,
+            yi: lunar.getTimeYi(),
+            ji: lunar.getTimeJi(),
+            description: getElementDescription(element),
+            recentLuck: getElementRecentLuck(element),
+            luckySymbols: getElementLuckySymbols(lunar)
+        };
+    }
+
+    // 计算缺失五行
+    static async getMissingElement(birthInfo: BirthInfo): Promise<MissingElement> {
+        const lunar = await Solar.fromYmd(birthInfo.year, birthInfo.month, birthInfo.day).getLunar(); 
+        const ganZhi = lunar.getTimeNaYin();
+        const element = ganZhi != null ? ganZhi.slice(-1) : '土';
+        let missingElement;
+        if (element === '金') {
+            missingElement = '水';
+        } else if (element === '木') {
+            missingElement = '火';
+        } else if (element === '水') {
+            missingElement = '木';
+        } else if (element === '火') {
+            missingElement = '土';
+        } else {
+            missingElement = '金';
+        }
+
+        return {
+            element: missingElement,
+            description: getMissingDescription(missingElement),
+            advice: getMissingAdvice(missingElement)
         };
     }
 
     // 计算产品
-    static async getProductsByElement(element: Element): Promise<ProductResult> {
+    static async getProducts(element: string): Promise<ProductResult[]> {
         let productTitle = '';
         let productFileUrl = '';
         let productDescription = '';
@@ -55,7 +97,13 @@ export default class GanzhiService {
             productDescription = '玉盘珍馐今具备，清风明月我相伴';
             break;
         }
-        return { productTitle, productFileUrl, productDescription };
+        return [
+            {
+                productTitle: productTitle,
+                productDescription: productDescription,
+                productFileUrl: productFileUrl
+            }
+        ];
       }
 
 }

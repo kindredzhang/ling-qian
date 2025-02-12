@@ -4,10 +4,12 @@ export type Element = '金' | '木' | '水' | '火' | '土';
 // 干支计算结果
 export interface GanZhiResult {
   ganZhi: string;
-  element: Element;
+  element: string;
   elementFileUrl: string;
   description: string; // 特质  
-  recentLuck: string; // 最近幸运
+  recentLuck: string; // 最近幸运,
+  yi: string[],
+  ji: string[],
   luckySymbols: {
     color: string;
     direction: string;
@@ -15,12 +17,10 @@ export interface GanZhiResult {
   }
 }
 
-export interface MissingElements {
-  element: Element;
+export interface MissingElement {
+  element: string;
   description: string; // 特质
   advice: string; // 健康建议
-  mantra: string;
-  activitySuggestions: string[];
 }
 
 // 产品推荐结果
@@ -40,6 +40,6 @@ export interface BirthInfo {
 
 export interface FinalResult {
   ganZhiResult: GanZhiResult; // 计算结果
-  missingElements: MissingElements[]; // 缺陷元素
+  missingElement: MissingElement; // 缺陷元素
   productResult: ProductResult[]; // 推荐产品
 }
