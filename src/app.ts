@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 import path from 'path';
-import ganZhiRouter from './routes/ganZhiRouter';
+import ganZhiRouter from './routes/GanZhiRouter';
 import fileRouter from './routes/fileRouter';
 const app: Express = express();
 app.use(express.static(path.join(__dirname, '../public')));

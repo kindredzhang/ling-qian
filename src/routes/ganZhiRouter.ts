@@ -24,11 +24,13 @@ router.post('/calculate', async (req: express.Request, res: express.Response) =>
     // 计算推荐结果
     const productResult = await calculateProduct(elementResult.element);
 
-    res.json({
-      name: birthInfo.name,
-      ...elementResult,
-      ...productResult
-    });
+    // res.json({
+    //   name: birthInfo.name,
+    //   ...elementResult,
+    //   ...productResult
+    // });
+
+    res.status(200).json()  
   } catch (error) {
     res.status(500).json({ error: '系统繁忙，请稍后再试' });
   }
