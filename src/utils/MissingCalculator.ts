@@ -1,5 +1,3 @@
-
-
 type Element = '金' | '木' | '水' | '火' | '土';
 type HeavenlyStem = '甲' | '乙' | '丙' | '丁' | '戊' | '己' | '庚' | '辛' | '壬' | '癸';
 type EarthlyBranch = '子' | '丑' | '寅' | '卯' | '辰' | '巳' | '午' | '未' | '申' | '酉' | '戌' | '亥';
@@ -30,10 +28,17 @@ const earthlyBranchesMap: Record<EarthlyBranch, HeavenlyStem[]> = {
 };
 
 export function getMissingElement(bazi: string[]): string {
+  if (!Array.isArray(bazi)) {
+    throw new Error('BaZi must be an array');
+  }
+
+  if (bazi.length !== 4) {
+    throw new Error(`BaZi array must have exactly 4 elements, got ${bazi.length}`);
+  }
   // 初始化五行计数器
   const elementsCount: Record<Element, number> = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
-  
-  // 拆分四柱（假设输入格式正确）
+
+  // 拆分四柱
   const [year, month, day, hour] = bazi.map(p => ({
     gan: p[0] as HeavenlyStem,
     zhi: p[1] as EarthlyBranch
@@ -41,14 +46,20 @@ export function getMissingElement(bazi: string[]): string {
 
   // 统计天干五行
   [year.gan, month.gan, day.gan, hour.gan].forEach(gan => {
-    elementsCount[heavenlyStemsMap[gan]]++;
+    if (heavenlyStemsMap[gan]) {
+      elementsCount[heavenlyStemsMap[gan]]++;
+    }
   });
 
   // 统计地支藏干五行
   [year.zhi, month.zhi, day.zhi, hour.zhi].forEach(zhi => {
-    earthlyBranchesMap[zhi].forEach(hiddenGan => {
-      elementsCount[heavenlyStemsMap[hiddenGan]]++;
-    });
+    if (earthlyBranchesMap[zhi]) {
+      earthlyBranchesMap[zhi].forEach(hiddenGan => {
+        if (heavenlyStemsMap[hiddenGan]) {
+          elementsCount[heavenlyStemsMap[hiddenGan]]++;
+        }
+      });
+    }
   });
 
   // 找出缺失元素（数量为零）

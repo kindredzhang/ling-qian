@@ -1,9 +1,9 @@
 import { Solar } from 'lunar-typescript';
-import { BirthInfo, FinalResult, GanZhiResult, MissingElement, ProductResult } from "../types";
-import {  getFileUrlByElement } from "../utils/GanZhiCalculator";
+import { getElementDescription, getElementRecentLuck, getMissingAdvice, getMissingDescription, getProducts } from '../config/elementDescriptions';
+import { BirthInfo, FinalResult, GanZhiResult, MissingElement } from "../types";
+import { getFileUrlByElement } from "../utils/GanZhiCalculator";
+import { getLuckyInfo } from '../utils/LuckyCaculator';
 import { getMissingElement } from '../utils/MissingCalculator';
-import {getLuckyInfo} from '../utils/LuckyCaculator';
-import { getMissingDescription, getMissingAdvice, getElementDescription, getElementRecentLuck, getProducts } from '../config/elementDescriptions';
 
 export default class GanzhiService {
 
@@ -42,13 +42,18 @@ export default class GanzhiService {
 
     // 计算缺失五行
     static async getMissingElement(birthInfo: BirthInfo): Promise<MissingElement> {
-        const lunar = await Solar.fromYmd(birthInfo.year, birthInfo.month, birthInfo.day).getLunar(); 
-        const element :string = getMissingElement(lunar.getBaZi());
-        return {
-            element: element,
-            description: getMissingDescription(element),
-            advice: getMissingAdvice(element)
-        };
+        try {
+            const bazi = Solar.fromYmd(birthInfo.year, birthInfo.month, birthInfo.day).getLunar().getBaZi();
+            const element = getMissingElement(bazi);
+            return {
+                element: element,
+                description: getMissingDescription(element),
+                advice: getMissingAdvice(element)
+            };
+        } catch (error) {
+            console.error('Error calculating missing element:', error);
+            throw error;
+        }
     }
 
 }
